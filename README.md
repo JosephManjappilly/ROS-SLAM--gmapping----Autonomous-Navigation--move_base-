@@ -1,3 +1,46 @@
-ROS SLAM (gmapping) - Autonomous Navigation (move_base)This repository contains a robotics project focused on implementing Simultaneous Localization and Mapping (SLAM) and autonomous navigation for a custom robot using ROS (Robot Operating System). The project leverages key components of the ROS Navigation Stack, with a particular focus on gmapping for SLAM and move_base for autonomous navigation.Link to this Repository📚 Project OverviewThis project is primarily based on the concepts and structure introduced in the Udemy course:ROS SLAM Navigation Stack and Custom RobotThe project is divided into two main sections:Implementation of SLAM with gmapping (Mapping Phase)Autonomous Navigation with move_base (Navigation Phase)1. 🗺 SLAM Implementation (map.launch)The first part of the project focuses on achieving robust SLAM using the slam_gmapping node. The launch file for this solution is map.launch.A few significant changes have been made in this implementation compared to the original Udemy course solution:Enhanced Robot State Publishing: The node responsible for robot state publishing (robot_state_publisher) has been configured with additional, specific parameters. These include wheel_radius, wheel_separation, and explicit mentions of left_wheel_joint and right_wheel_joint as defined in the robot's URDF.Improved Mapping Accuracy: Incorporating these detailed kinematic parameters resulted in a significant increase in mapping accuracy. This reduced errors in the robot's understanding of the map being built, leading to a more precise and reliable generated map.To run the SLAM mapping phase:roslaunch explorer_bot map.launch
-2. 🧭 Autonomous Navigation (navigation.launch)The second part of the project involves performing SLAM and autonomous navigation simultaneously. The solution for this integrated approach is provided in the navigation.launch file.Several crucial changes have been implemented here compared to the Udemy course:Correct TEB Local Planner Loading: Initially, the TEB local planner (teb_local_planner/TebLocalPlannerROS) was not loading correctly. This was identified as a namespace issue where the local planner's type was not explicitly specified. The solution involved:Explicitly setting base_local_planner and base_global_planner parameters in the move_base node.Loading the parameters for TEB into its correct and specific namespace (TebLocalPlannerROS) within the launch file.Resolved Nested Namespace Issues in Configuration Files: A key challenge was encountered where specifying namespaces in the launch file (e.g., ns="global_costmap") and simultaneously having top-level namespace keys within the .yaml configuration files (e.g., global_costmap: in global_costmap_params.yaml) caused a nesting of namespaces (e.g., /navigation/global_costmap/global_costmap/). This prevented parameters from being loaded properly. To fix this, all top-level namespace keys were removed from costmap_common_params.yaml, local_costmap_params.yaml, global_costmap_params.yaml, and trajectory_planner.yaml. Namespaces are now only managed in the launch file, ensuring proper parameter resolution.To run the autonomous navigation phase:roslaunch explorer_bot navigation.launch
-📝 Additional Project InsightsFor a more detailed understanding of the challenges encountered, debugging steps, and the rationale behind specific changes, please refer to the attached Ros Notes.pdf document within this repository. It provides further context and information.
+# ROS SLAM (gmapping) - Autonomous Navigation (move_base)
+
+This repository contains a robotics project focused on implementing Simultaneous Localization and Mapping (SLAM) and autonomous navigation for a custom robot using ROS (Robot Operating System). The project leverages key components of the ROS Navigation Stack, with a particular focus on `gmapping` for SLAM and `move_base` for autonomous navigation.
+
+**[Link to your Repo](https://github.com/JosephManjappilly/ROS-SLAM--gmapping----Autonomous-Navigation--move_base-)**
+
+---
+
+## 📚 Project Overview
+
+This project is primarily based on the concepts and structure introduced in the Udemy course:
+**[ROS SLAM Navigation Stack and Custom Robot](https://github.com/noshluk2/ROS-Navigation-Stack-and-SLAM-for-Autonomous-Custom-Robot/tree/master)**
+
+The project is divided into two main sections:
+
+1.  **Implementation of SLAM with `gmapping` (Mapping Phase)**
+2.  **Autonomous Navigation with `move_base` (Navigation Phase)**
+
+---
+
+## 1. 🗺 SLAM Implementation (`map.launch`)
+
+The first part of the project focuses on achieving robust SLAM using the `slam_gmapping` node. The solution for this phase is encapsulated in the `map.launch` file.
+
+**Key enhancements and changes from the Udemy course implementation:**
+
+* **Improved Robot State Publishing:** Significant modifications were made to the robot state publishing node. Additional parameters such as `wheel_radius`, `wheel_separation`, and specifically defined `left_wheel_joint` and `right_wheel_joint` were incorporated as per the robot's URDF specifications.
+* **Enhanced Mapping Accuracy:** By integrating these detailed robot kinematics into the state publishing, a notable increase in mapping accuracy was observed. This reduced errors in the robot's understanding of the generated map, leading to more reliable SLAM performance.
+
+**To run the SLAM mapping phase:**
+
+```bash
+roslaunch explorer_bot map.launch
+## 2. 🧭 Autonomous Navigation (`navigation.launch`)
+
+The second part of the project combines SLAM with autonomous navigation, allowing the robot to map and navigate simultaneously within an unknown environment. The complete solution for this is found in the `navigation.launch` file.
+
+**Key configuration adjustments and fixes compared to the Udemy course:**
+
+* **TEB Local Planner Loading:** The `TebLocalPlannerROS` was initially not loading correctly due to incorrect namespace specification. This was resolved by explicitly defining the namespace for the TEB local planner directly within the `navigation.launch` file.
+* **Correct Parameter Loading with Namespacing:** A crucial fix involved addressing nested namespace issues. It was identified that specifying a namespace in the launch file (e.g., `ns="global_costmap"`) while simultaneously having a top-level namespace key within the `.yaml` configuration files (e.g., `global_costmap:`) led to improper parameter loading (e.g., `/navigation/global_costmap/global_costmap/param`). To fix this, all top-level namespace keys were removed from the `costmap_common_params.yaml`, `local_costmap_params.yaml`, `global_costmap_params.yaml`, and `trajectory_planner.yaml` configuration files, ensuring that namespaces are *only* defined in the launch file. This guarantees correct parameter hierarchy and loading.
+
+**To run the autonomous navigation phase:**
+
+```bash
+roslaunch explorer_bot navigation.launch
