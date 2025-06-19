@@ -7,6 +7,8 @@ Panels:
         - /Global Options1
         - /Status1
         - /Path1
+        - /Path2
+        - /Pose1
         - /Map2
         - /Map3
       Splitter Ratio: 0.5
@@ -203,7 +205,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Base_move/TrajectoryPlannerROS/global_plan
+      Topic: /navigation/TebLocalPlannerROS/global_plan
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -227,7 +229,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /Base_move/TrajectoryPlannerROS/local_plan
+      Topic: /navigation/TebLocalPlannerROS/local_plan
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -243,7 +245,7 @@ Visualization Manager:
       Shaft Length: 1
       Shaft Radius: 0.05000000074505806
       Shape: Arrow
-      Topic: /Base_move/current_goal
+      Topic: /navigation/current_goal
       Unreliable: false
       Value: true
     - Alpha: 0.699999988079071
