@@ -2,7 +2,6 @@
 
 This repository contains a robotics project focused on implementing Simultaneous Localization and Mapping (SLAM) and autonomous navigation for a custom robot using ROS (Robot Operating System). The project leverages key components of the ROS Navigation Stack, with a particular focus on `gmapping` for SLAM and `move_base` for autonomous navigation.
 
-**[Link to your Repo](https://github.com/JosephManjappilly/ROS-SLAM--gmapping----Autonomous-Navigation--move_base-)**
 
 ---
 
@@ -45,3 +44,5 @@ The second part of the project combines SLAM with autonomous navigation, allowin
 
 ```bash
 roslaunch explorer_bot navigation.launch
+```
+
