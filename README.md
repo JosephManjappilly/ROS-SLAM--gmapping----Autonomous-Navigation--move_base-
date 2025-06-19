@@ -31,6 +31,7 @@ The first part of the project focuses on achieving robust SLAM using the `slam_g
 
 ```bash
 roslaunch explorer_bot map.launch
+````
 ## 2. 🧭 Autonomous Navigation (`navigation.launch`)
 
 The second part of the project combines SLAM with autonomous navigation, allowing the robot to map and navigate simultaneously within an unknown environment. The complete solution for this is found in the `navigation.launch` file.
