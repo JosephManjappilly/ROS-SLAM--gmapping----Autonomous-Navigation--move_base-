@@ -2,7 +2,7 @@
 <sdf version='1.7'>
   <model name='Maze_room'>
     <pose>2.0474 1.32445 0 0 -0 0</pose>
-    <scale>4 4 2</scale>
+    <scale>20 20 10</scale>
     <link name='Wall_18'>
       <collision name='Wall_18_Collision'>
         <geometry>
