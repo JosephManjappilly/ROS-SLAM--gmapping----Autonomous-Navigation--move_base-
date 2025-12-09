@@ -1,48 +1,194 @@
-# ROS SLAM (gmapping) - Autonomous Navigation (move_base)
+# 🧭 ROS SLAM (gmapping) - Autonomous Navigation (move_base)
+## Custom Robot · Navigation Stack · TEB Planner · Experimental Evaluation
 
-This repository contains a robotics project focused on implementing Simultaneous Localization and Mapping (SLAM) and autonomous navigation for a custom robot using ROS (Robot Operating System). The project leverages key components of the ROS Navigation Stack, with a particular focus on `gmapping` for SLAM and `move_base` for autonomous navigation.
+This repository implements a complete SLAM (Simultaneous Localization and Mapping) and Autonomous Navigation system for a custom differential-drive robot using ROS (Robot Operating System).
 
+It extends the concepts from the Udemy course: 🔗 **[ROS SLAM Navigation Stack and Custom Robot](https://github.com/noshluk2/ROS-Navigation-Stack-and-SLAM-for-Autonomous-Custom-Robot/tree/master)**
 
+The project now includes:
+
+* A refined custom URDF robot
+
+* SLAM using gmapping
+
+* Autonomous navigation using move_base
+
+* Integration of the TEB local planner
+
+* Four experimental navigation configurations (Case 1–4)
+
+Performance evaluation from 80 mapping trials
 ---
 
-## 📚 Project Overview
 
-This project is primarily based on the concepts and structure introduced in the Udemy course:
-**[ROS SLAM Navigation Stack and Custom Robot](https://github.com/noshluk2/ROS-Navigation-Stack-and-SLAM-for-Autonomous-Custom-Robot/tree/master)**
+## 📌 Project Structure
 
-The project is divided into two main sections:
+This repository is organized into:
 
-1.  **Implementation of SLAM with `gmapping` (Mapping Phase)**
-2.  **Autonomous Navigation with `move_base` (Navigation Phase)**
+* **SLAM (Mapping) — Running gmapping**
 
+* **Autonomous Navigation — Using move_base**
+
+* Four experimental evaluation cases
+
+* Updated costmap and planner configurations
 ---
 
-## 1. 🗺 SLAM Implementation (`map.launch`)
+## 🗺 1. SLAM Implementation (map.launch)
 
-The first part of the project focuses on achieving robust SLAM using the `slam_gmapping` node. The solution for this phase is encapsulated in the `map.launch` file.
+SLAM is implemented via the slam_gmapping package.
 
-**Key enhancements and changes from the Udemy course implementation:**
+✔ Key Enhancements (Beyond the Base Udemy Project)
 
-* **Improved Robot State Publishing:** Significant modifications were made to the robot state publishing node. Additional parameters such as `wheel_radius`, `wheel_separation`, and specifically defined `left_wheel_joint` and `right_wheel_joint` were incorporated as per the robot's URDF specifications.
-* **Enhanced Mapping Accuracy:** By integrating these detailed robot kinematics into the state publishing, a notable increase in mapping accuracy was observed. This reduced errors in the robot's understanding of the generated map, leading to more reliable SLAM performance.
+Added custom parameters to robot_state_publisher:
+``` 
+<param name="wheel_radius" value="0.035"/>
+<param name="wheel_separation" value="0.25"/>
+<param name="left_wheel_joint" value="left_wheel_joint"/>
+<param name="right_wheel_joint" value="right_wheel_joint"/>
+```
+Although these parameters are not standard for the node, they were intentionally injected to analyze their effect on mapping performance.
 
-**To run the SLAM mapping phase:**
+Observed improvements:
 
-```bash
+* Higher mapping consistency
+* Reduced variation across runs
+### ▶ Run SLAM Mapping
+
+```{bash}:Run SLAM Mapping:
 roslaunch explorer_bot map.launch
-````
-## 2. 🧭 Autonomous Navigation (`navigation.launch`)
+```
 
-The second part of the project combines SLAM with autonomous navigation, allowing the robot to map and navigate simultaneously within an unknown environment. The complete solution for this is found in the `navigation.launch` file.
+## 🧭 2. Autonomous Navigation (`navigation.launch`)
 
-**Key configuration adjustments and fixes compared to the Udemy course:**
+Navigation combines SLAM, costmaps, and planning in the `move_base` framework.
 
-* **Introduced TEB Local Planner and Ensured Proper Setup:** Initially, the `TebLocalPlannerROS` was not loading correctly. This was resolved by explicitly defining its namespace within the `navigation.launch` file, effectively introducing TEB as the custom local planner. Simultaneously, the default global planner was explicitly configured to ensure a complete and robust navigation setup.
-* **Corrected Nested Namespace Issues for Parameter Loading:** A crucial fix involved addressing complex nested namespace problems. It was identified that specifying a namespace in the launch file (e.g., `ns="global_costmap"`) while simultaneously having a top-level namespace key within the `.yaml` configuration files (e.g., `global_costmap:`) led to improper parameter loading (e.g., `/navigation/global_costmap/global_costmap/param`). To fix this, all top-level namespace keys were removed from the `costmap_common_params.yaml`, `local_costmap_params.yaml`, `global_costmap_params.yaml`, and `trajectory_planner.yaml` configuration files. This ensures that namespaces are *only* defined in the launch file, guaranteeing a correct parameter hierarchy and proper loading for both the local (TEB) and global planners.
+### ✔ Major Fixes & Improvements
 
-**To run the autonomous navigation phase:**
+**1. TEB Local Planner Correctly Enabled**
+`TebLocalPlannerROS` originally failed to load due to namespace issues.
+This was fixed by:
+* Adding the correct TEB namespace in `navigation.launch`
+* Ensuring parameter YAML files do not include their own namespace blocks
 
-```bash
+**2. Costmap Namespace Fix**
+Original YAML files contained:
+
+```{yaml}:Original YAML Costmap Namespace:
+global_costmap:
+```
+
+while the launch file already used:
+
+```{xml}:Launch File Namespace:
+<node ns="global_costmap">
+```
+
+This resulted in invalid nested paths like: `/navigation/global_costmap/global_costmap/param`.
+**✔ Fixed by removing all top-level namespace keys from the costmap YAML files.**
+
+### ▶ Run Autonomous Navigation
+
+```{bash}:Run Autonomous Navigation:
 roslaunch explorer_bot navigation.launch
 ```
 
+## 🧪 3. Experimental Evaluation — 4 Cases
+
+To analyze the impact of wheel geometry (injected parameters) and planner choice, four launch configurations were created:
+
+| Case | Wheel Params | Local Planner | Launch File |
+| :--- | :--- | :--- | :--- |
+| **1** | ✘ Default | Default | `navigation_NWD_NT.launch` |
+| **2** | ✔ Injected | Default | `navigation_WD_NT.launch` |
+| **3** | ✘ Default | TEB | `navigation_NWD_WT.launch` |
+| **4** | ✔ Injected | TEB | `navigation_WD_WT.launch` |
+
+> *Each case was executed 20 times, resulting in 80 mapping runs. (Export to Sheets)*
+
+## 📊 4. Performance Results Summary
+
+### ✔ Mean Mapping Time (20 Trials Per Case)
+
+| Case | Mean Time (sec) | Std Dev (sec) |
+| :--- | :--- | :--- |
+| C1: No WD + Default | 538.76 | 13.24 |
+| C2: WD + Default | 487.66 | 5.80 |
+| C3: No WD + TEB | 340.27 | 1.84 |
+| C4: WD + TEB | 339.94 | 1.56 |
+
+> *Export to Sheets*
+
+### 🟢 Interpretation
+
+* Wheel geometry improves mapping performance by **~10%** under the default planner.
+* TEB offers a **~36–37% faster mapping time**.
+* Standard deviation dramatically decreases → more consistent behavior.
+* TEB + wheel parameters (Case 4) shows the most stable performance.
+
+
+
+## 🧠 5. Observed Behavioral Differences
+
+| Behavior | C1 | C2 | C3 | C4 |
+| :--- | :--- | :--- | :--- | :--- |
+| Handles sharp curves | ✘ | ✘ | ✔ | ✔ |
+| Reverse arc turning | ✘ | ✘ | ✔ | ✔ |
+| Gets stuck at corners | Frequent | Less | None | None |
+| Path smoothness | Low | Medium | High | High |
+
+> *Export to Sheets*
+
+TEB significantly improved maneuverability and reduced oscillatory behavior.
+
+## 🛠 6. File Structure Overview
+
+```markdown:File Structure:
+explorer_bot/
+│── launch/
+│   ├── map.launch
+│   ├── navigation.launch
+│   ├── navigation_NWD_NT.launch
+│   ├── navigation_WD_NT.launch
+│   ├── navigation_NWD_WT.launch
+│   ├── navigation_WD_WT.launch
+│── config/
+│   ├── costmap_common_params.yaml
+│   ├── local_costmap_params.yaml
+│   ├── global_costmap_params.yaml
+│   ├── teb_local_planner.yaml
+│   ├── trajectory_planner.yaml
+│── urdf/
+│   ├── explorer_bot.urdf
+│── worlds/
+│── maps/
+│── scripts/
+```
+
+## 🧩 7. Tools Used
+
+* ROS Noetic
+* Gazebo 11
+* RViz
+* TEB Local Planner
+* `slam_gmapping`
+* Custom URDF robot
+
+## 📘 8. References
+
+* ROS Navigation Stack
+* TEB Local Planner (C. Rösmann et al.)
+* Gmapping SLAM
+* Base repository by noshluk2
+
+## 🎯 9. Summary
+
+This repository now provides:
+* A complete ROS SLAM + Navigation pipeline
+* Corrected namespaces and planner configuration
+* Four experimental navigation setups
+* Analysis of mapping time improvements
+* Behavioral comparisons across planners
+* Insights into how non-standard wheel parameters affect navigation
+
+Feel free to explore, clone, modify, and expand upon this project!
