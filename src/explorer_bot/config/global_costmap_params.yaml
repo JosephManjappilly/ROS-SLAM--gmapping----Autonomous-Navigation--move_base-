@@ -8,4 +8,4 @@
   origin_x: -7.5
   origin_y: -7.5
   resolution: 0.1
-  inflation_radius: 2.5
+  inflation_radius: 0.35
